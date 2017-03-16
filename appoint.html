@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<html>
+    <head>
+        <rel="stylesheet" type="text/css" href="css/main.css" />
+        <meta http-equiv="content-type" content="text/php; charset=utf-8" />
+		<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+		<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+		<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+		<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.min.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-timepicker/1.10.0/jquery.timepicker.js"></script>
+		<script type="text/javascript" src=".\appoint.js"></script>
+
+        <title>Appointments</title>
+		
+		<style>
+			table, th, td 
+			{
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+		</style>
+    </head>
+
+    <body>
+        
+			<button type="button" id="new_it" style="display:block" onclick="addForm();">NEW</button>
+			</br></br>
+			
+			
+			<div id="new_form" style="display:none">
+			
+			<form action="/cgi-bin/backend.cgi" method="POST">
+			<input type="submit" value="Add">
+			<button type="button" id="cancel_it" onclick="cancelit();">Cancel</button>
+			</br></br>
+				DATE :: <input type="text" id="datepicker" name="dateset"></br></br>
+				TIME :: <input type="text" id="timepicker" name="timeset"></br></br>
+				DESC :: <input type="text" name="descset"></br></br>
+			</form>
+
+			</div>
+			<input type="text" id="search"><button type="button" onclick="searchit();">SEARCH</button>
+			</br></br>
+			<table id="table" class="hidden"  cellspacing="10">
+				<thead>
+				<tr>
+					<th>Date</th>
+					<th>Time</th>
+					<th>Description</th>
+				</tr>
+			</thead>
+			</table>
+		
+			<script type="text/javascript">
+			var json;
+			$(document).ready(function getAppointments() 
+			{
+				
+				$.ajax({
+					'type':'GET',
+					'url':'/cgi-bin/play.cgi',
+					'async':true,
+					'success':function(data)
+					{ 	
+						var json = JSON.parse(data);
+						
+						for (var i = 0; i < json.data.length; i++) 
+						{
+							tr = $('<tr/>');
+							tr.append("<td>" + json.data[i].dateval + "</td>");
+							tr.append("<td>" + json.data[i].timeval + "</td>");
+							tr.append("<td>" + json.data[i].descval + "</td>");
+							$('table').append(tr);
+						}
+
+					}
+
+				});
+				
+			});
+
+			function addForm()
+			{  
+				var reveal = document.getElementById("new_form");
+				var newstuff=  document.getElementById("new_it");
+					if(reveal.style.display == "block") 
+					{
+						reveal.style.display = "none";
+						newstuff.style.display = "block";
+						
+						
+					}
+
+					else 
+					{
+						reveal.style.display = "block";
+						newstuff.style.display = "none";
+					}	
+			}
+			
+			function cancelit()
+			{
+				var newstuff=  document.getElementById("new_it");
+				var reveal = document.getElementById("new_form");
+				newstuff.style.display = "block";
+				reveal.style.display = "none";
+			}
+			
+
+			$(function() {
+			    $( "#datepicker" ).datepicker();
+			    $("#timepicker").timepicker({});
+			});
+
+			  function searchit()
+			  {
+			  	var value = document.getElementById("search").value;
+			  	var targetTable = document.getElementById("table");
+			  	var colcount;
+			  	
+
+			  	for(var i =0;i<targetTable.rows.length;i++)
+			  	{
+			  		var rowz = '';
+			  		if(i == 0)
+			  		{
+			  			colcount = targetTable.rows.item(i).cells.length;
+			  			continue;
+			  		}
+
+			  		//Process data rows (rowIndex>=1)
+			  		for(var colj = 0; colj<colcount; colj++)
+			  		{
+			  			rowz += targetTable.rows.item(i).cells.item(colj).innerText;
+			  		}
+
+			  		if(rowz.indexOf(value)==-1)
+			  		{
+			  			targetTable.rows.item(i).style.display = 'none';
+			  		}
+			  		else
+			  		{
+			  			targetTable.rows.item(i).style.display = 'table-row';
+			  		}
+			  	}
+
+			  }
+
+			</script>
+			
+			     
+    </body>
